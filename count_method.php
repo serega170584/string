@@ -20,5 +20,3 @@ $res = [];
 for ($i = 0; $i < $firstNameCount; ++$i) {
     $res[$counts[$firstNameSections[$firstNames[$i]] - 1]++] = $firstNames[$i];
 }
-var_dump($res);
-die('asd');
