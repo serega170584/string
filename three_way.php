@@ -34,34 +34,43 @@ while ($row = fgets($fdescr)) {
     $firstNames[] = sprintf("%-{$length}s", trim($row));
 }
 
+$parts = [[0, count($firstNames) - 1]];
+$indexQueue = [];
 while ($charIndex < $length) {
-    $firstIndex = 0;
-    $lastIndex = count($firstNames) - 1;
-    $borders = getBorders($firstNames, $firstIndex, $lastIndex, $charIndex);
-    $firstNames = $borders[0];
-    $leftBorderIndex = $borders[1];
-    $rightBorderIndex = $borders[2];
-    if ($leftBorderIndex - 1 != $firstIndex) {
-        $indexQueue[] = [$firstIndex, $leftBorderIndex - 1];
-    }
-    if ($rightBorderIndex + 1 != $lastIndex) {
-        $indexQueue[] = [$rightBorderIndex + 1, $lastIndex];
-    }
-    while ($indexQueue) {
-        $borderIndexes = array_shift($indexQueue);
-        $firstIndex = $borderIndexes[0];
-        $lastIndex = $borderIndexes[1];
+    $generatedParts = [];
+    while ($parts) {
+        $part = array_shift($parts);
+        $firstIndex = $part[0];
+        $lastIndex = $part[1];
         $borders = getBorders($firstNames, $firstIndex, $lastIndex, $charIndex);
         $firstNames = $borders[0];
         $leftBorderIndex = $borders[1];
         $rightBorderIndex = $borders[2];
-        if ($leftBorderIndex - 1 > $firstIndex) {
+        if ($leftBorderIndex - 1 >= $firstIndex) {
             $indexQueue[] = [$firstIndex, $leftBorderIndex - 1];
         }
-        if ($rightBorderIndex + 1 < $lastIndex) {
+        if ($rightBorderIndex + 1 <= $lastIndex) {
             $indexQueue[] = [$rightBorderIndex + 1, $lastIndex];
         }
+        $generatedParts[] = [$leftBorderIndex, $rightBorderIndex];
+        while ($indexQueue) {
+            $borderIndexes = array_shift($indexQueue);
+            $firstIndex = $borderIndexes[0];
+            $lastIndex = $borderIndexes[1];
+            $borders = getBorders($firstNames, $firstIndex, $lastIndex, $charIndex);
+            $firstNames = $borders[0];
+            $leftBorderIndex = $borders[1];
+            $rightBorderIndex = $borders[2];
+            if ($leftBorderIndex - 1 >= $firstIndex) {
+                $indexQueue[] = [$firstIndex, $leftBorderIndex - 1];
+            }
+            if ($rightBorderIndex + 1 <= $lastIndex) {
+                $indexQueue[] = [$rightBorderIndex + 1, $lastIndex];
+            }
+            $generatedParts[] = [$leftBorderIndex, $rightBorderIndex];
+        }
     }
+    $parts = $generatedParts;
     ++$charIndex;
 }
 var_dump($firstNames);
