@@ -219,7 +219,7 @@ class TSTNode
         $prevNodes = [];
         while ($nodes) {
             $nextNodes = [];
-            foreach ($nodes as $node) {
+            while ($node = current($nodes)) {
                 if ($node->getLeft()) {
                     $nodes[] = $node->getLeft();
                 }
@@ -229,6 +229,7 @@ class TSTNode
                 if ($node->getMiddle()) {
                     $nextNodes[] = $node->getMiddle();
                 }
+                next($nodes);
             }
             $prevNodes = $nodes;
             $nodes = $nextNodes;
@@ -239,15 +240,28 @@ class TSTNode
             $word = '';
             while ($treeNode) {
                 $word = $treeNode->getChar() . $word;
-                $treeNode = $treeNode->getPrev();
+                $treeNode = $this->getPrevCharNode($treeNode);
             }
             $words[] = $word;
         }
         return $words;
     }
+
+    /**
+     * @param TSTNode $node
+     */
+    public function getPrevCharNode($node)
+    {
+        $prev = $node->getPrev();
+        while ($prev && $prev->getMiddle() !== $node) {
+            $node = $prev;
+            $prev = $node->getPrev();
+        }
+        return $prev;
+    }
 }
 
 $tree = new TSTNode();
-$tree->buildTree('she sells sea shells by the sea shore');
-$tree->getRoot()->getLeft()->setPrev(null);
+$tree->buildTree('shells ells shores');
+//$tree->getRoot()->getLeft()->setPrev(null);
 var_dump($tree->getLongestWords());
